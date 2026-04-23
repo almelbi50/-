@@ -41,9 +41,7 @@ def calculate_solar_cell_parameters(G, T_celsius, Isc_ref=5.0, Voc_ref=0.6, area
         'P_max': P_max, 'Vmpp': V[idx_mpp], 
         'Impp': I[idx_mpp], 'FF': FF, 'Efficiency': Efficiency
     }
-# عرض خريطة توضح الموقع المختار للتأكد من عدم التداخل الجغرافي
-st.sidebar.markdown("🗺️ **موقع سحب البيانات:**")
-st.sidebar.map(pd.DataFrame({'lat': [lat], 'lon': [lon]}), zoom=4)
+
 # ==========================================
 # 2. ربط البيانات الجغرافية (Real-time API)
 # ==========================================
@@ -77,6 +75,9 @@ st.markdown("""
 st.sidebar.header("🌍 إعدادات الموقع والجهاز")
 lat = st.sidebar.number_input("خط العرض (Latitude)", value=24.4672, format="%.4f", help="الموقع الافتراضي: المدينة المنورة")
 lon = st.sidebar.number_input("خط الطول (Longitude)", value=39.6024, format="%.4f")
+# عرض خريطة توضح الموقع المختار للتأكد من عدم التداخل الجغرافي
+st.sidebar.markdown("🗺️ **موقع سحب البيانات:**")
+st.sidebar.map(pd.DataFrame({'lat': [lat], 'lon': [lon]}), zoom=4)
 
 st.sidebar.divider()
 st.sidebar.subheader("🔬 خصائص الخلية الشمسية")
