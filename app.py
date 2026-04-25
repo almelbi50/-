@@ -78,7 +78,7 @@ def fetch_real_solar_data(lat, lon):
 # ==========================================
 # 3. واجهة المستخدم (Streamlit Interface)
 # ==========================================
-st.set_page_config(page_title="مختبر الخلايا الشمسية الجغرافي", page_icon="☀️", layout="wide")
+st.set_page_config(page_title="معمل الخلايا الشمسية التفاعلي - المستوى الاول ", layout="wide")
 
 # --- تحسينات التصميم (CSS المخصص) ---
 st.markdown("""
