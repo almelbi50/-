@@ -85,7 +85,6 @@ st.set_page_config(page_title="مختبر الخلايا الشمسية الجغ
 # --- تحسينات التصميم (CSS المخصص) ---
 st.markdown("""
 <style>
-    /* تغيير تنسيق مؤشرات الأداء لتبدو كبطاقات احترافية */
     div[data-testid="metric-container"] {
         background-color: #ffffff;
         border: 1px solid #e0e0e0;
@@ -94,14 +93,12 @@ st.markdown("""
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);
         text-align: center;
     }
-    /* تحسين شكل الفواصل */
     hr {
         margin-top: 2em;
         margin-bottom: 2em;
         border: 0;
         border-top: 2px solid #f0f2f6;
     }
-    /* توسيط النصوص في العناوين */
     .centered-text {
         text-align: center;
     }
@@ -123,6 +120,9 @@ st.markdown("""
 في أي موقع جغرافي حول العالم على مدار 24 ساعة، مع مراعاة تأثير الحرارة على الجهد والتيار.
 </p>
 """, unsafe_allow_html=True)
+
+# --- التنبيه العلمي الجديد ---
+st.info("**تنبيه علمي:** يعتمد هذا المحاكي على **النموذج المثالي ذي المعاملات الثلاثة (3-Parameter Ideal Model)**. يُركز هذا النموذج على دراسة التأثيرات الأساسية للإشعاع والحرارة (تيار التوليد الضوئي، تيار الإشباع، ومعامل المثالية)، متجاهلاً تأثيرات المقاومات الداخلية للخلية (المقاومة التوالية والتوازية) لتبسيط التحليل الرياضي في هذا المستوى التعليمي.", icon="💡")
 
 st.write("---")
 
@@ -191,9 +191,8 @@ if hours is not None:
             yaxis2=dict(title="الطاقة الكهربائية (W)", overlaying='y', side='right'),
             hovermode="x unified",
             margin=dict(l=40, r=40, t=40, b=40),
-            plot_bgcolor='rgba(0,0,0,0)' # خلفية شفافة للرسم
+            plot_bgcolor='rgba(0,0,0,0)' 
         )
-        # إضافة شبكة خفيفة
         fig_time.update_xaxes(showgrid=True, gridwidth=1, gridcolor='#F0F0F0')
         fig_time.update_yaxes(showgrid=True, gridwidth=1, gridcolor='#F0F0F0')
         st.plotly_chart(fig_time, use_container_width=True)
@@ -206,56 +205,4 @@ if hours is not None:
             st.success(f"**V_mpp:** {peak_res['Vmpp']:.3f} V")
             st.success(f"**I_mpp:** {peak_res['Impp']:.3f} A")
             st.warning(f"**Fill Factor:** {peak_res['FF']:.3f}")
-        with col_iv2:
-            fig_iv = go.Figure()
-            fig_iv.add_trace(go.Scatter(x=peak_res['V'], y=peak_res['I'], name="I-V Curve", line=dict(color='#636EFA', width=3)))
-            fig_iv.add_trace(go.Scatter(x=[peak_res['Vmpp']], y=[peak_res['Impp']], mode='markers', name='MPP Point', marker=dict(size=14, color='#EF553B', symbol='star')))
-            fig_iv.update_layout(
-                title="منحنى التيار والجهد عند ذروة الإشعاع", 
-                xaxis_title="الجهد (V)", 
-                yaxis_title="التيار (A)",
-                plot_bgcolor='rgba(0,0,0,0)',
-                margin=dict(l=40, r=40, t=40, b=40)
-            )
-            fig_iv.update_xaxes(showgrid=True, gridwidth=1, gridcolor='#F0F0F0')
-            fig_iv.update_yaxes(showgrid=True, gridwidth=1, gridcolor='#F0F0F0')
-            st.plotly_chart(fig_iv, use_container_width=True)
-
-    with tab3:
-        st.markdown("#### سجل البيانات التفصيلي")
-        st.dataframe(df, use_container_width=True)
-        
-        csv_full = df.to_csv(index=False).encode('utf-8-sig')
-        st.download_button("📥 تحميل بيانات اليوم كاملة (CSV)", csv_full, "solar_lab_daily_summary.csv", "text/csv")
-        
-        st.divider()
-        
-        st.markdown("#### استخراج بيانات منحنى (I-V) التفصيلية")
-        st.write("اختر أي ساعة من اليوم لتحميل الـ 100 نقطة (جهد، تيار، قدرة) المكونة لمنحناها.")
-        
-        col_select, col_download = st.columns([1, 2])
-        with col_select:
-            selected_hour = st.selectbox("اختر الساعة:", options=hours, index=int(peak_hour_idx))
-            
-        with col_download:
-            st.write("") 
-            st.write("")
-            curve_data = hourly_curves_data[selected_hour]
-            if curve_data['P_max'] > 0:
-                df_curve = pd.DataFrame({
-                    'Voltage (V)': curve_data['V'],
-                    'Current (A)': curve_data['I'],
-                    'Power (W)': curve_data['P']
-                })
-                csv_curve = df_curve.to_csv(index=False).encode('utf-8-sig')
-                st.download_button(
-                    label=f"📥 تحميل نقاط منحنى الساعة {selected_hour}:00",
-                    data=csv_curve,
-                    file_name=f'iv_curve_hour_{selected_hour}.csv',
-                    mime='text/csv'
-                )
-            else:
-                st.warning("لا يوجد إنتاج للطاقة في هذه الساعة (الليل أو إشعاع منعدم).")
-
-else:
-    st.error("خطأ في الاتصال بمزود بيانات الطقس. يرجى التأكد من اتصال الإنترنت.")
+        with
