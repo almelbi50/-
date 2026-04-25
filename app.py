@@ -35,8 +35,6 @@ def calculate_solar_cell_parameters(G, T_celsius, Isc_ref=5.0, Voc_ref=0.6, area
     # حماية برمجية لمنع الجهد من أن يصبح سالباً في درجات الحرارة المتطرفة
     Voc_dynamic = max(Voc_dynamic, 0.01)
     
-    # ----------------------------------------
-    
     # حساب تيار الإشباع العكسي بالقيم الديناميكية الجديدة
     I_o = Isc_dynamic / (np.exp(Voc_dynamic / (n * Vt)) - 1)
     
@@ -121,7 +119,7 @@ st.markdown("""
 </p>
 """, unsafe_allow_html=True)
 
-# --- التنبيه العلمي الجديد ---
+# --- التنبيه العلمي ---
 st.info("**تنبيه علمي:** يعتمد هذا المحاكي على **النموذج المثالي ذي المعاملات الثلاثة (3-Parameter Ideal Model)**. يُركز هذا النموذج على دراسة التأثيرات الأساسية للإشعاع والحرارة (تيار التوليد الضوئي، تيار الإشباع، ومعامل المثالية)، متجاهلاً تأثيرات المقاومات الداخلية للخلية (المقاومة التوالية والتوازية) لتبسيط التحليل الرياضي في هذا المستوى التعليمي.", icon="💡")
 
 st.write("---")
@@ -161,7 +159,7 @@ if hours is not None:
 
     df = pd.DataFrame(full_day_results)
 
-    # --- عرض الإحصائيات الحيوية (كبطاقات أنيقة) ---
+    # --- عرض الإحصائيات الحيوية ---
     st.markdown("### 📊 ملخص الأداء اليومي")
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -205,4 +203,57 @@ if hours is not None:
             st.success(f"**V_mpp:** {peak_res['Vmpp']:.3f} V")
             st.success(f"**I_mpp:** {peak_res['Impp']:.3f} A")
             st.warning(f"**Fill Factor:** {peak_res['FF']:.3f}")
-        with
+        with col_iv2:
+            fig_iv = go.Figure()
+            fig_iv.add_trace(go.Scatter(x=peak_res['V'], y=peak_res['I'], name="I-V Curve", line=dict(color='#636EFA', width=3)))
+            fig_iv.add_trace(go.Scatter(x=[peak_res['Vmpp']], y=[peak_res['Impp']], mode='markers', name='MPP Point', marker=dict(size=14, color='#EF553B', symbol='star')))
+            fig_iv.update_layout(
+                title="منحنى التيار والجهد عند ذروة الإشعاع", 
+                xaxis_title="الجهد (V)", 
+                yaxis_title="التيار (A)",
+                plot_bgcolor='rgba(0,0,0,0)',
+                margin=dict(l=40, r=40, t=40, b=40)
+            )
+            fig_iv.update_xaxes(showgrid=True, gridwidth=1, gridcolor='#F0F0F0')
+            fig_iv.update_yaxes(showgrid=True, gridwidth=1, gridcolor='#F0F0F0')
+            st.plotly_chart(fig_iv, use_container_width=True)
+
+    with tab3:
+        st.markdown("#### سجل البيانات التفصيلي")
+        st.dataframe(df, use_container_width=True)
+        
+        csv_full = df.to_csv(index=False).encode('utf-8-sig')
+        st.download_button("📥 تحميل بيانات اليوم كاملة (CSV)", csv_full, "solar_lab_daily_summary.csv", "text/csv")
+        
+        st.divider()
+        
+        st.markdown("#### استخراج بيانات منحنى (I-V) التفصيلية")
+        st.write("اختر أي ساعة من اليوم لتحميل الـ 100 نقطة (جهد، تيار، قدرة) المكونة لمنحناها.")
+        
+        col_select, col_download = st.columns([1, 2])
+        
+        with col_select:
+            selected_hour = st.selectbox("اختر الساعة:", options=hours, index=int(peak_hour_idx))
+            
+        with col_download:
+            st.write("") 
+            st.write("")
+            curve_data = hourly_curves_data[selected_hour]
+            if curve_data['P_max'] > 0:
+                df_curve = pd.DataFrame({
+                    'Voltage (V)': curve_data['V'],
+                    'Current (A)': curve_data['I'],
+                    'Power (W)': curve_data['P']
+                })
+                csv_curve = df_curve.to_csv(index=False).encode('utf-8-sig')
+                st.download_button(
+                    label=f"📥 تحميل نقاط منحنى الساعة {selected_hour}:00",
+                    data=csv_curve,
+                    file_name=f'iv_curve_hour_{selected_hour}.csv',
+                    mime='text/csv'
+                )
+            else:
+                st.warning("لا يوجد إنتاج للطاقة في هذه الساعة (الليل أو إشعاع منعدم).")
+
+else:
+    st.error("خطأ في الاتصال بمزود بيانات الطقس. يرجى التأكد من اتصال الإنترنت.")
